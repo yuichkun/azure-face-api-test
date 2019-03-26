@@ -1,15 +1,25 @@
 <template>
   <div id="app">
-    <img
-      ref="inputImg"
-      src="https://upload.wikimedia.org/wikipedia/commons/c/c3/RH_Louise_Lillian_Gish.jpg"
-    />
+    <div id="video-box">
+      <video ref="videoEl" autoplay :srcObject.prop="stream"></video>
+      <snap-shot :video="this.$refs.videoEl" />
+    </div>
+    <div v-if="features" id="feature-description">
+      <span>Detected Features:</span>
+      <ul v-for="(value, key) in features" :key="key">
+        <li>
+          <span>{{ key }}:</span>
+          <div>{{ value }}</div>
+        </li>
+      </ul>
+    </div>
     <button @click="sendAnalysisRequest">Analyze</button>
   </div>
 </template>
 
 <script>
 import qs from "query-string";
+import SnapShot from "./components/SnapShot.vue";
 const FACE_API =
   "https://westcentralus.api.cognitive.microsoft.com/face/v1.0/detect";
 // Request parameters.
@@ -23,6 +33,17 @@ const params = {
 
 export default {
   name: "app",
+  data: function() {
+    return {
+      features: null,
+      stream: null
+    };
+  },
+  mounted: function() {
+    navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+      this.stream = stream;
+    });
+  },
   methods: {
     sendAnalysisRequest() {
       const url = `${FACE_API}?${qs.stringify(params)}`;
@@ -48,11 +69,13 @@ export default {
           }
         })
         .then(data => {
-          console.log(data);
+          this.features = data[0].faceAttributes;
         });
     }
   },
-  components: {}
+  components: {
+    SnapShot
+  }
 };
 </script>
 
@@ -64,5 +87,11 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+#video-box {
+  display: flex;
+}
+ul {
+  list-style: none;
 }
 </style>
