@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <source-selector @gotStream="setVideoSource" />
     <div id="header-container">
       <span>ソース映像</span>
       <span>スナップショット</span>
@@ -21,6 +22,7 @@
 import qs from "query-string";
 import SnapShot from "./components/SnapShot.vue";
 import Result from "./components/Result.vue";
+import SourceSelector from "./components/SourceSelector.vue";
 import { dataURItoBlob } from "./utils";
 const FACE_API =
   "https://japaneast.api.cognitive.microsoft.com/face/v1.0/detect";
@@ -46,6 +48,9 @@ export default {
     });
   },
   methods: {
+    setVideoSource(stream) {
+      this.stream = stream;
+    },
     async takeSnapShot() {
       return new Promise(resolve => {
         this.$eventHub.$on("drawImageDone", png => {
@@ -87,7 +92,8 @@ export default {
   },
   components: {
     SnapShot,
-    Result
+    Result,
+    SourceSelector
   }
 };
 </script>
