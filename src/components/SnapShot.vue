@@ -5,6 +5,11 @@
 <script>
 export default {
   props: ["video"],
+  created() {
+    this.$eventHub.$on("drawImage", () => {
+      this.drawImage();
+    });
+  },
   mounted: function() {
     this.ctx = this.$el.getContext("2d");
   },
@@ -12,12 +17,8 @@ export default {
     drawImage() {
       const canvas = this.$el;
       this.ctx.drawImage(this.video, 0, 0, canvas.width, canvas.height);
-      requestAnimationFrame(this.drawImage);
-    }
-  },
-  watch: {
-    video: function() {
-      this.drawImage();
+      const png = canvas.toDataURL("image/png");
+      this.$eventHub.$emit("drawImageDone", png);
     }
   }
 };
@@ -25,8 +26,7 @@ export default {
 
 <style>
 canvas {
-  width: 50vw;
+  width: 100%;
   height: 100%;
-  background: blue;
 }
 </style>
