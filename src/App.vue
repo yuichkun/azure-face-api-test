@@ -13,7 +13,7 @@
         <snap-shot :video="this.$refs.videoEl" />
       </div>
     </div>
-    <button @click="sendAnalysisRequest">検出</button>
+    <!-- <button @click="sendAnalysisRequest">検出</button> -->
     <Result :features="features" />
   </div>
 </template>
@@ -46,6 +46,15 @@ export default {
     navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
       this.stream = stream;
     });
+    if(!this.intervalID){
+      this.count = 0;
+      this.intervalID = setInterval(()=>{
+        if(this.count < 30){
+          this.sendAnalysisRequest();
+          this.count++;
+        }
+      }, 4000);
+    }
   },
   methods: {
     setVideoSource(stream) {
@@ -82,7 +91,13 @@ export default {
           }
         })
         .then(data => {
-          this.features = data[0].faceAttributes;
+          if(data.length){
+            this.features = data[0].faceAttributes;
+            document.body.style.backgroundColor = 'red';
+          } else {
+            this.features = {};
+            document.body.style.backgroundColor = 'white';
+          }
         })
         .catch(e => {
           console.error(e);
